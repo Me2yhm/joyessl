@@ -31,4 +31,4 @@ def run(groupname: str, domainname: str, sslname: str) -> None:
 
 
 if __name__ == "__main__":
-    run(*sys.argv[1:])
+    run("joyessl1","joyessl.fun","cert-joye")
