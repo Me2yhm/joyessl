@@ -12,6 +12,8 @@ from alibabacloud_cloudapi20160714 import models as cloud_api20160714_models
 from alibabacloud_tea_util import models as util_models
 from alibabacloud_tea_util.client import Client as UtilClient
 
+os.environ["ALIBABA_CLOUD_ACCESS_KEY_ID"] = 'ID'
+os.environ["ALIBABA_CLOUD_ACCESS_KEY_SECRET"] = 'secret'
 
 class aliapi:
     def __init__(self):
@@ -177,4 +179,4 @@ class aliapi:
 
 
 if __name__ == "__main__":
-    aliapi.get_apigroups_info(sys.argv[1:])
+    aliapi.get_apigroups_info()
