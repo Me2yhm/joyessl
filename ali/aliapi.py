@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
 import os
 import sys
-
 from typing import List
 
-from alibabacloud_cloudapi20160714.client import Client as CloudAPI20160714Client
+from client import clientType, api_gateway_client, api_sslplate_client
+
+
+from alibabacloud_cas20200407 import models as cas_20200407_models
 from alibabacloud_tea_openapi import models as open_api_models
 from alibabacloud_cloudapi20160714 import models as cloud_api20160714_models
 from alibabacloud_tea_util import models as util_models
@@ -19,7 +21,8 @@ class aliapi:
     def create_client(
         access_key_id: str,
         access_key_secret: str,
-    ) -> CloudAPI20160714Client:
+        client_type: clientType,
+    ) -> clientType:
         """
         使用AK&SK初始化账号Client
         @param access_key_id:
@@ -34,16 +37,17 @@ class aliapi:
             access_key_secret=access_key_secret,
         )
         # 访问的域名
-        config.endpoint = f"apigateway.cn-hongkong.aliyuncs.com"
-        return CloudAPI20160714Client(config)
+        config.endpoint = client_type.endpoint
+        return client_type(config)
 
     @staticmethod
-    def get_apigroups_info() -> None:
+    def get_apigroups_info():
         # 代码运行环境设置了环境变量 ALIBABA_CLOUD_ACCESS_KEY_ID 和 ALIBABA_CLOUD_ACCESS_KEY_SECRET。
         # 工程代码泄露可能会导致 AccessKey 泄露，并威胁账号下所有资源的安全性。故使用环境变量获取 AccessKey 的方式进行调用
         client = aliapi.create_client(
             os.environ["ALIBABA_CLOUD_ACCESS_KEY_ID"],
             os.environ["ALIBABA_CLOUD_ACCESS_KEY_SECRET"],
+            api_gateway_client,
         )
         describe_api_groups_request = (
             cloud_api20160714_models.DescribeApiGroupsRequest()
@@ -57,9 +61,6 @@ class aliapi:
             )
             groups = groups_describe.to_map()
             groups_attribute = groups["body"]["ApiGroupAttributes"]["ApiGroupAttribute"]
-            # print(len(groups_attribute))
-            # for v in groups_attribute:
-            #     print(v)
             return groups_attribute
         except Exception as error:
             # 如有需要，请打印 error
@@ -89,6 +90,7 @@ class aliapi:
         client = aliapi.create_client(
             os.environ["ALIBABA_CLOUD_ACCESS_KEY_ID"],
             os.environ["ALIBABA_CLOUD_ACCESS_KEY_SECRET"],
+            api_gateway_client,
         )
         set_domain_request = cloud_api20160714_models.SetDomainRequest(
             group_id=group_id,
@@ -115,6 +117,7 @@ class aliapi:
         client = aliapi.create_client(
             os.environ["ALIBABA_CLOUD_ACCESS_KEY_ID"],
             os.environ["ALIBABA_CLOUD_ACCESS_KEY_SECRET"],
+            api_gateway_client,
         )
         with open(certPath, "r") as f:
             cert = f.read()
@@ -138,6 +141,39 @@ class aliapi:
         except Exception as error:
             # 如有需要，请打印 error
             UtilClient.assert_as_string(error.message)
+
+    @staticmethod
+    def upload_ssl(
+        certName: str,  # 文件名
+        certPath: str,  # .fullchain文件存储路径
+        keyPath: str,  # .key文件存储路径
+    ) -> None:
+        # 请确保代码运行环境设置了环境变量 ALIBABA_CLOUD_ACCESS_KEY_ID 和 ALIBABA_CLOUD_ACCESS_KEY_SECRET。
+        # 工程代码泄露可能会导致 AccessKey 泄露，并威胁账号下所有资源的安全性。
+        client = aliapi.create_client(
+            os.environ["ALIBABA_CLOUD_ACCESS_KEY_ID"],
+            os.environ["ALIBABA_CLOUD_ACCESS_KEY_SECRET"],
+            api_sslplate_client,
+        )
+        with open(certPath, "r") as f:
+            cert_body = f.read()
+        with open(keyPath, "r") as f:
+            cert_key = f.read()
+        upload_user_certificate_request = (
+            cas_20200407_models.UploadUserCertificateRequest(
+                name=certName,
+                cert=cert_body,
+                key=cert_key,
+            )
+        )
+        runtime = util_models.RuntimeOptions()
+        try:
+            cert = client.upload_user_certificate_with_options(
+                upload_user_certificate_request, runtime
+            )
+            cert = cert.to_map()
+        except Exception as error:
+            print(UtilClient.assert_as_string(error.message))
 
 
 if __name__ == "__main__":
