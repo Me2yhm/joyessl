@@ -12,8 +12,9 @@ from alibabacloud_cloudapi20160714 import models as cloud_api20160714_models
 from alibabacloud_tea_util import models as util_models
 from alibabacloud_tea_util.client import Client as UtilClient
 
-os.environ["ALIBABA_CLOUD_ACCESS_KEY_ID"] = 'ID'
-os.environ["ALIBABA_CLOUD_ACCESS_KEY_SECRET"] = 'secret'
+accesskey_ID = os.environ["ALIBABA_CLOUD_ACCESS_KEY_ID"]
+accesskey_secret = os.environ["ALIBABA_CLOUD_ACCESS_KEY_SECRET"]
+
 
 class aliapi:
     def __init__(self):
@@ -47,8 +48,8 @@ class aliapi:
         # 代码运行环境设置了环境变量 ALIBABA_CLOUD_ACCESS_KEY_ID 和 ALIBABA_CLOUD_ACCESS_KEY_SECRET。
         # 工程代码泄露可能会导致 AccessKey 泄露，并威胁账号下所有资源的安全性。故使用环境变量获取 AccessKey 的方式进行调用
         client = aliapi.create_client(
-            os.environ["ALIBABA_CLOUD_ACCESS_KEY_ID"],
-            os.environ["ALIBABA_CLOUD_ACCESS_KEY_SECRET"],
+            accesskey_ID,
+            accesskey_secret,
             api_gateway_client,
         )
         describe_api_groups_request = (
@@ -90,8 +91,8 @@ class aliapi:
         DomainType: str = "INTERNET",  # 指定是公网类型还是内网类型，可选值：INTERNET：公网类型; INTRANET:内网类型。当指定了内网类型后，该域名就不允许从内网请求过来
     ) -> None:
         client = aliapi.create_client(
-            os.environ["ALIBABA_CLOUD_ACCESS_KEY_ID"],
-            os.environ["ALIBABA_CLOUD_ACCESS_KEY_SECRET"],
+            accesskey_ID,
+            accesskey_secret,
             api_gateway_client,
         )
         set_domain_request = cloud_api20160714_models.SetDomainRequest(
@@ -117,8 +118,8 @@ class aliapi:
         keyPath: str,  # .key文件存储路径
     ) -> None:
         client = aliapi.create_client(
-            os.environ["ALIBABA_CLOUD_ACCESS_KEY_ID"],
-            os.environ["ALIBABA_CLOUD_ACCESS_KEY_SECRET"],
+            accesskey_ID,
+            accesskey_secret,
             api_gateway_client,
         )
         with open(certPath, "r") as f:
@@ -153,8 +154,8 @@ class aliapi:
         # 请确保代码运行环境设置了环境变量 ALIBABA_CLOUD_ACCESS_KEY_ID 和 ALIBABA_CLOUD_ACCESS_KEY_SECRET。
         # 工程代码泄露可能会导致 AccessKey 泄露，并威胁账号下所有资源的安全性。
         client = aliapi.create_client(
-            os.environ["ALIBABA_CLOUD_ACCESS_KEY_ID"],
-            os.environ["ALIBABA_CLOUD_ACCESS_KEY_SECRET"],
+            accesskey_ID,
+            accesskey_secret,
             api_sslplate_client,
         )
         with open(certPath, "r") as f:
@@ -175,6 +176,72 @@ class aliapi:
             )
             cert = cert.to_map()
         except Exception as error:
+            print(UtilClient.assert_as_string(error.message))
+
+    @staticmethod
+    def get_sslmessage_list() -> None:
+        # 请确保代码运行环境设置了环境变量 ALIBABA_CLOUD_ACCESS_KEY_ID 和 ALIBABA_CLOUD_ACCESS_KEY_SECRET。
+        # 工程代码泄露可能会导致 AccessKey 泄露，并威胁账号下所有资源的安全性。以下代码示例使用环境变量获取 AccessKey 的方式进行调用，仅供参考，建议使用更安全的 STS 方式，更多鉴权访问方式请参见：https://help.aliyun.com/document_detail/378659.html
+        client = aliapi.create_client(
+            os.environ["ALIBABA_CLOUD_ACCESS_KEY_ID"],
+            os.environ["ALIBABA_CLOUD_ACCESS_KEY_SECRET"],
+            api_sslplate_client,
+        )
+        list_user_certificate_order_request = (
+            cas_20200407_models.ListUserCertificateOrderRequest(order_type="upload")
+        )
+        runtime = util_models.RuntimeOptions()
+        try:
+            # 复制代码运行请自行打印 API 的返回值
+            ssl_message = client.list_user_certificate_order_with_options(
+                list_user_certificate_order_request, runtime
+            ).to_map()
+            ssl_list = ssl_message["body"]["CertificateOrderList"]
+            return ssl_list
+
+        except Exception as error:
+            # 如有需要，请打印 error
+            print(UtilClient.assert_as_string(error.message))
+
+    @staticmethod
+    def has_ssl(certName: str) -> bool:
+        ssl_list = aliapi.get_sslmessage_list()
+        flag = False
+        for ssl in ssl_list:
+            if ssl["Name"] == certName:
+                return True
+        return flag
+
+    @staticmethod
+    def get_sslId(certName: str) -> int:
+        ssl_list = aliapi.get_sslmessage_list()
+        if aliapi.has_ssl(certName):
+            for ssl in ssl_list:
+                if ssl["Name"] == certName:
+                    return ssl["CertificateId"]
+        else:
+            raise ValueError("ssl not exist")
+
+    @staticmethod
+    def del_ssl(certId: int) -> None:
+        # 请确保代码运行环境设置了环境变量 ALIBABA_CLOUD_ACCESS_KEY_ID 和 ALIBABA_CLOUD_ACCESS_KEY_SECRET。
+        # 工程代码泄露可能会导致 AccessKey 泄露，并威胁账号下所有资源的安全性。以下代码示例使用环境变量获取 AccessKey 的方式进行调用，仅供参考，建议使用更安全的 STS 方式，更多鉴权访问方式请参见：https://help.aliyun.com/document_detail/378659.html
+        client = aliapi.create_client(
+            os.environ["ALIBABA_CLOUD_ACCESS_KEY_ID"],
+            os.environ["ALIBABA_CLOUD_ACCESS_KEY_SECRET"],
+            api_sslplate_client,
+        )
+        delete_user_certificate_request = (
+            cas_20200407_models.DeleteUserCertificateRequest(certId)
+        )
+        runtime = util_models.RuntimeOptions()
+        try:
+            # 复制代码运行请自行打印 API 的返回值
+            client.delete_user_certificate_with_options(
+                delete_user_certificate_request, runtime
+            )
+        except Exception as error:
+            # 如有需要，请打印 error
             print(UtilClient.assert_as_string(error.message))
 
 

@@ -15,14 +15,14 @@ class clientType(ABC):
 
 
 class api_gateway_client(clientType):
-    endpoint = f"apigateway.cn-hongkong.aliyuncs.com"
+    endpoint = "apigateway.cn-hongkong.aliyuncs.com"
 
     def __new__(cls, config: open_api_models.Config) -> CloudAPI20160714Client:
         return CloudAPI20160714Client(config)
 
 
 class api_sslplate_client(clientType):
-    endpoint = f"cas.aliyuncs.com"
+    endpoint = "cas.aliyuncs.com"
 
     def __new__(cls, config: open_api_models.Config) -> cas20200407Client:
         return cas20200407Client(config)

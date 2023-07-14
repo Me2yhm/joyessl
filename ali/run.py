@@ -7,10 +7,8 @@ from aliapi import aliapi
 # 文件路径的问题需要仔细考虑，同时考虑ssl证书更新时的备份问题。
 def get_ssl_path(certname: str):
     base = os.getcwd()
-    cert_path = os.path.join(
-        base, f"etc\\nginx\\certificate\\{certname}\\fullchain.cer"
-    )
-    keypath = os.path.join(base, f"etc\\nginx\\certificate\\{certname}\\cert .key")
+    cert_path = os.path.join(base, f"etc/nginx/certificate/{certname}/fullchain.cer")
+    keypath = os.path.join(base, f"etc/nginx/certificate/{certname}/cert.key")
     if os.path.exists(cert_path) and os.path.exists(keypath):
         return cert_path, keypath
     else:
@@ -37,5 +35,14 @@ def ssl_upload_apigateway(certname: str) -> None:
     aliapi.upload_ssl(certname, certpath, keypath)
 
 
+def update_ssl(certname: str) -> None:
+    if aliapi.has_ssl(certName=certname):
+        cert_id = aliapi.get_sslId(certName=certname)
+        aliapi.del_ssl(certId=cert_id)
+        ssl_upload_apigateway(certname=certname)
+    else:
+        ssl_upload_apigateway(certname=certname)
+
+
 if __name__ == "__main__":
-    ssl_upload_apigateway(*sys.argv[1:])
+    update_ssl(*sys.argv[1:])
