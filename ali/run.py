@@ -7,8 +7,8 @@ from aliapi import aliapi
 # 文件路径的问题需要仔细考虑，同时考虑ssl证书更新时的备份问题。
 def get_ssl_path(certname: str):
     base = os.getcwd()
-    cert_path = os.path.join(base, f"etc/nginx/certificate/{certname}/fullchain.cer")
-    keypath = os.path.join(base, f"etc/nginx/certificate/{certname}/cert.key")
+    cert_path = os.path.join(base, f"etc/nginx/certificates/{certname}/fullchain.cer")
+    keypath = os.path.join(base, f"etc/nginx/certificates/{certname}/cert.key")
     if os.path.exists(cert_path) and os.path.exists(keypath):
         return cert_path, keypath
     else:
