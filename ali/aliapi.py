@@ -12,8 +12,8 @@ from alibabacloud_cloudapi20160714 import models as cloud_api20160714_models
 from alibabacloud_tea_util import models as util_models
 from alibabacloud_tea_util.client import Client as UtilClient
 
-accesskey_ID = os.environ["ALIBABA_CLOUD_ACCESS_KEY_ID"]
-accesskey_secret = os.environ["ALIBABA_CLOUD_ACCESS_KEY_SECRET"]
+accesskey_ID = os.environ["ALIBABA_CLOUD_ACCESS_KEY_ID"][1:]
+accesskey_secret = os.environ["ALIBABA_CLOUD_ACCESS_KEY_SECRET"][1:]
 
 
 class aliapi:
