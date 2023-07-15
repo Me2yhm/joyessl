@@ -3,7 +3,7 @@ import os
 import sys
 from typing import List
 
-from client import clientType, api_gateway_client, api_sslplate_client
+from .client import clientType, api_gateway_client, api_sslplate_client
 
 
 from alibabacloud_cas20200407 import models as cas_20200407_models
