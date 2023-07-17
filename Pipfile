@@ -6,6 +6,7 @@ name = "pip_conf_index_global"
 [packages]
 alibabacloud-cloudapi20160714 = "==2.2.20"
 alibabacloud-cas20200407 = "==1.0.13"
+alibabacloud-fc-open20210406 = "==2.0.9"
 
 [dev-packages]
 

@@ -35,6 +35,16 @@ def ssl_upto_apigroup(groupname: str, domainname: str, sslname: str) -> None:
     )
 
 
+def ssl_upto_fc(domainname: str, sslname: str) -> None:
+    cert_path, keypath = get_ssl_path(sslname)
+    aliapi.update_function_ssl(
+        domainName=domainname,
+        sslName=sslname,
+        certPath=cert_path,
+        keyPath=keypath,
+    )
+
+
 def ssl_upload_apigateway(certname: str) -> None:
     certpath, keypath = get_ssl_path(certname)
     aliapi.upload_ssl(certname, certpath, keypath)
@@ -49,7 +59,25 @@ def update_ssl(certname: str) -> None:
         ssl_upload_apigateway(certname=certname)
 
 
+def ssl_upload_fc(domainName: str, sslName: str):
+    cert_path, keypath = get_ssl_path(sslName)
+    aliapi.creat_fc_domain(
+        domainName=domainName,
+        sslName=sslName,
+        certPath=cert_path,
+        keyPath=keypath,
+    )
+
+
+def update_fc_ssl(domainName: str, sslName: str):
+    if aliapi.fc_has_domain(domainName=domainName):
+        ssl_upto_fc(domainname=domainName, sslname=sslName)
+    else:
+        ssl_upload_fc(domainName=domainName, sslName=sslName)
+
+
 if __name__ == "__main__":
+    restart_docker = os.path.join(os.path.dirname(__file__), "restart_docker.sh")
     subprocess.run(["sh", "restart_docker.sh"])
     ssl_from_docker(*sys.argv[1:])
-    update_ssl(*sys.argv[1:])
+    update_fc_ssl(*sys.argv[1:])

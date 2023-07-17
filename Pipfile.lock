@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "6aeac768bb6920bbed237dbc9c2600f857ffae50a3a10ed070c0be568f018c10"
+            "sha256": "23798ca8944d04a725a141a01d3768ba20e2cc1873119d1bfa0dd5cdb31720c2"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -146,6 +146,21 @@
             ],
             "version": "==0.0.3"
         },
+        "alibabacloud-fc-open20210406": {
+            "hashes": [
+                "sha256:a84cbf6448341e578b335d6224dc976b7d58ab0715fdc9e1bf4281eb472dccdd",
+                "sha256:a8d1c4b65858ce27c23bcdabc247e8a3ec77d535930952b580d08e199dd218d6"
+            ],
+            "index": "pip_conf_index_global",
+            "version": "==2.0.9"
+        },
+        "alibabacloud-gateway-fc-util": {
+            "hashes": [
+                "sha256:2d4409cf3b3ce280f7d9d4c1c0e770f5b72f8d1beabc877ba66bb10721e44b57"
+            ],
+            "markers": "python_version >= '3.6'",
+            "version": "==0.0.4"
+        },
         "alibabacloud-gateway-spi": {
             "hashes": [
                 "sha256:1b259855708afc3c04d8711d8530c63f7645e1edc0cf97e2fd15461b08e11c30"
@@ -161,10 +176,10 @@
         },
         "alibabacloud-tea": {
             "hashes": [
-                "sha256:8d9525ff6c3498bf7b1d71a771bc7486a0e9931552424db6d1f4cc904ed5c77f"
+                "sha256:90f1b3310552f7cb004f713e2b55d129acd4a885bd79342df6d621422de23775"
             ],
             "markers": "python_version >= '3.6'",
-            "version": "==0.3.2"
+            "version": "==0.3.3"
         },
         "alibabacloud-tea-openapi": {
             "hashes": [
@@ -175,10 +190,10 @@
         },
         "alibabacloud-tea-util": {
             "hashes": [
-                "sha256:1a427384be75396a85dbfefd69abc163d5902dc00bbd3737cee4d81a291657b4"
+                "sha256:21934932b643791e1ab0e20cfd9e1ac7ec46696310f3e79a183a881934389d37"
             ],
             "markers": "python_version >= '3.6'",
-            "version": "==0.3.8"
+            "version": "==0.3.10"
         },
         "alibabacloud-tea-xml": {
             "hashes": [

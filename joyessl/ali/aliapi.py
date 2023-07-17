@@ -3,12 +3,13 @@ import os
 import sys
 from typing import List
 
-from .client import clientType, api_gateway_client, api_sslplate_client
+from .client import clientType, api_gateway_client, api_sslplate_client, api_fc_client
 
 
 from alibabacloud_cas20200407 import models as cas_20200407_models
 from alibabacloud_tea_openapi import models as open_api_models
 from alibabacloud_cloudapi20160714 import models as cloud_api20160714_models
+from alibabacloud_fc_open20210406 import models as fc__open_20210406_models
 from alibabacloud_tea_util import models as util_models
 from alibabacloud_tea_util.client import Client as UtilClient
 
@@ -183,8 +184,8 @@ class aliapi:
         # 请确保代码运行环境设置了环境变量 ALIBABA_CLOUD_ACCESS_KEY_ID 和 ALIBABA_CLOUD_ACCESS_KEY_SECRET。
         # 工程代码泄露可能会导致 AccessKey 泄露，并威胁账号下所有资源的安全性。以下代码示例使用环境变量获取 AccessKey 的方式进行调用，仅供参考，建议使用更安全的 STS 方式，更多鉴权访问方式请参见：https://help.aliyun.com/document_detail/378659.html
         client = aliapi.create_client(
-            os.environ["ALIBABA_CLOUD_ACCESS_KEY_ID"],
-            os.environ["ALIBABA_CLOUD_ACCESS_KEY_SECRET"],
+            accesskey_ID,
+            accesskey_secret,
             api_sslplate_client,
         )
         list_user_certificate_order_request = (
@@ -227,8 +228,8 @@ class aliapi:
         # 请确保代码运行环境设置了环境变量 ALIBABA_CLOUD_ACCESS_KEY_ID 和 ALIBABA_CLOUD_ACCESS_KEY_SECRET。
         # 工程代码泄露可能会导致 AccessKey 泄露，并威胁账号下所有资源的安全性。以下代码示例使用环境变量获取 AccessKey 的方式进行调用，仅供参考，建议使用更安全的 STS 方式，更多鉴权访问方式请参见：https://help.aliyun.com/document_detail/378659.html
         client = aliapi.create_client(
-            os.environ["ALIBABA_CLOUD_ACCESS_KEY_ID"],
-            os.environ["ALIBABA_CLOUD_ACCESS_KEY_SECRET"],
+            accesskey_ID,
+            accesskey_secret,
             api_sslplate_client,
         )
         delete_user_certificate_request = (
@@ -244,6 +245,175 @@ class aliapi:
             # 如有需要，请打印 error
             print(UtilClient.assert_as_string(error.message))
 
+    @staticmethod
+    def fc_domain_infos() -> List[dict]:
+        # 请确保代码运行环境设置了环境变量 ALIBABA_CLOUD_ACCESS_KEY_ID 和 ALIBABA_CLOUD_ACCESS_KEY_SECRET。
+        client = aliapi.create_client(
+            accesskey_ID,
+            accesskey_secret,
+            api_fc_client,
+        )
+        list_custom_domains_headers = (
+            fc__open_20210406_models.ListCustomDomainsHeaders()
+        )
+        list_custom_domains_request = (
+            fc__open_20210406_models.ListCustomDomainsRequest()
+        )
+        runtime = util_models.RuntimeOptions()
+        try:
+            # 复制代码运行请自行打印 API 的返回值
+            domain_message = client.list_custom_domains_with_options(
+                list_custom_domains_request, list_custom_domains_headers, runtime
+            ).to_map()
+            message_list = domain_message["body"]["customDomains"]
+            return message_list
+        except Exception as error:
+            # 如有需要，请打印 error
+            print(UtilClient.assert_as_string(error.message))
 
-if __name__ == "__main__":
-    aliapi.get_apigroups_info()
+    @staticmethod
+    def fc_has_domain(domainName: str) -> bool:
+        info_list = aliapi.fc_domain_infos()
+        for info in info_list:
+            if info["domainName"] == domainName:
+                return True
+        return False
+
+    @staticmethod
+    def fc_has_ssl(domainName: str, sslName: str) -> bool:
+        info_list = aliapi.fc_domain_infos()
+        for info in info_list:
+            if info["domainName"] == domainName:
+                if info["certConfig"]["certName"] == sslName:
+                    return True
+        return False
+
+    @staticmethod
+    def creat_fc_domain(
+        domainName: str,
+        certName: str,
+        certPath: str,
+        keyPath: str,
+    ) -> None:
+        # 请确保代码运行环境设置了环境变量 ALIBABA_CLOUD_ACCESS_KEY_ID 和 ALIBABA_CLOUD_ACCESS_KEY_SECRET。
+        client = aliapi.create_client(
+            accesskey_ID,
+            accesskey_secret,
+            api_fc_client,
+        )
+        create_custom_domain_headers = (
+            fc__open_20210406_models.CreateCustomDomainHeaders()
+        )
+
+        with open(certPath, "r") as f:
+            cert_body = f.read()
+        with open(keyPath, "r") as f:
+            cert_key = f.read()
+        cert_config = fc__open_20210406_models.CertConfig(
+            certificate=cert_body,
+            private_key=cert_key,
+            cert_name=certName,
+        )
+        create_custom_domain_request = fc__open_20210406_models.CreateCustomDomainRequest(
+            domain_name=domainName,
+            cert_config=cert_config,
+            protocol="HTTPS"
+            # route_config=route_config,
+        )
+        runtime = util_models.RuntimeOptions()
+        try:
+            # 复制代码运行请自行打印 API 的返回值
+            client.create_custom_domain_with_options(
+                create_custom_domain_request, create_custom_domain_headers, runtime
+            )
+        except Exception as error:
+            # 如有需要，请打印 error
+            print(UtilClient.assert_as_string(error.message))
+
+    @staticmethod
+    def add_fc_route(
+        domainName: str,
+        functionName: str = None,  # 这三个参数设置函数路由，按需求选择是否传参
+        require_path: str = None,
+        serviceName: str = None,
+        *methods: str,
+    ) -> None:
+        # 请确保代码运行环境设置了环境变量 ALIBABA_CLOUD_ACCESS_KEY_ID 和 ALIBABA_CLOUD_ACCESS_KEY_SECRET。
+        client = aliapi.create_client(
+            accesskey_ID,
+            accesskey_secret,
+            api_fc_client,
+        )
+        update_custom_domain_headers = (
+            fc__open_20210406_models.UpdateCustomDomainHeaders()
+        )
+        route_config_path_config_0 = fc__open_20210406_models.PathConfig(
+            function_name=functionName,
+            path=require_path,
+            service_name=serviceName,
+            methods=[*methods],
+        )
+        route_config = fc__open_20210406_models.RouteConfig(
+            routes=[route_config_path_config_0]
+        )
+        update_custom_domain_request = (
+            fc__open_20210406_models.UpdateCustomDomainRequest(
+                route_config=route_config
+            )
+        )
+        runtime = util_models.RuntimeOptions()
+        try:
+            # 复制代码运行请自行打印 API 的返回值
+            client.update_custom_domain_with_options(
+                domainName,
+                update_custom_domain_request,
+                update_custom_domain_headers,
+                runtime,
+            )
+        except Exception as error:
+            # 如有需要，请打印 error
+            print(UtilClient.assert_as_string(error.message))
+
+    @staticmethod
+    def update_function_ssl(
+        domainName: str,
+        certName: str,
+        certPath: str,
+        keyPath: str,
+    ) -> None:
+        # 请确保代码运行环境设置了环境变量 ALIBABA_CLOUD_ACCESS_KEY_ID 和 ALIBABA_CLOUD_ACCESS_KEY_SECRET。
+        client = aliapi.create_client(
+            accesskey_ID,
+            accesskey_secret,
+            api_fc_client,
+        )
+        update_custom_domain_headers = (
+            fc__open_20210406_models.UpdateCustomDomainHeaders()
+        )
+        with open(certPath, "r") as f:
+            cert_body = f.read()
+        with open(keyPath, "r") as f:
+            cert_key = f.read()
+        cert_config = fc__open_20210406_models.CertConfig(
+            certificate=cert_body,
+            private_key=cert_key,
+            cert_name=certName,
+        )
+        update_custom_domain_request = (
+            fc__open_20210406_models.UpdateCustomDomainRequest(
+                cert_config=cert_config,
+                protocol="HTTPS",
+            )
+        )
+        runtime = util_models.RuntimeOptions()
+        try:
+            # 复制代码运行请自行打印 API 的返回值
+            client.update_custom_domain_with_options(
+                domainName,
+                update_custom_domain_request,
+                update_custom_domain_headers,
+                runtime,
+            )
+        except Exception as error:
+            # 如有需要，请打印 error
+            print(UtilClient.assert_as_string(error.message))
