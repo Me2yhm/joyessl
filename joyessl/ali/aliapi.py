@@ -13,6 +13,8 @@ from alibabacloud_fc_open20210406 import models as fc__open_20210406_models
 from alibabacloud_tea_util import models as util_models
 from alibabacloud_tea_util.client import Client as UtilClient
 
+# 避免工程代码泄露是的accesskey泄露。所以程序运行之前要添加环境变量
+# linux系统的环境变量会自动在开头加冒号，所以要去掉
 accesskey_ID = os.environ["ALIBABA_CLOUD_ACCESS_KEY_ID"][1:]
 accesskey_secret = os.environ["ALIBABA_CLOUD_ACCESS_KEY_SECRET"][1:]
 
@@ -46,8 +48,9 @@ class aliapi:
 
     @staticmethod
     def get_apigroups_info():
-        # 代码运行环境设置了环境变量 ALIBABA_CLOUD_ACCESS_KEY_ID 和 ALIBABA_CLOUD_ACCESS_KEY_SECRET。
-        # 工程代码泄露可能会导致 AccessKey 泄露，并威胁账号下所有资源的安全性。故使用环境变量获取 AccessKey 的方式进行调用
+        """
+        获得api分组的信息, 返回一个列表, 列表内元素是每一个api分组所有信息构成的字典。
+        """
         client = aliapi.create_client(
             accesskey_ID,
             accesskey_secret,
@@ -75,6 +78,9 @@ class aliapi:
     def get_apigroupid(
         groupname: str,
     ) -> str:
+        """
+        获得指定api分组的id
+        """
         groups = aliapi.get_apigroups_info()
         try:
             for v in groups:
@@ -84,13 +90,19 @@ class aliapi:
         except Exception as error:
             UtilClient.assert_as_string(error.message)
 
-    # 给指定分组绑定自定义域名
     @staticmethod
     def connect_domin(
         group_id: str,
         domain_name: str,  # 域名
-        DomainType: str = "INTERNET",  # 指定是公网类型还是内网类型，可选值：INTERNET：公网类型; INTRANET:内网类型。当指定了内网类型后，该域名就不允许从内网请求过来
+        DomainType: str = "INTERNET",
     ) -> None:
+        """
+        给指定分组绑定自定义域名
+        group_id: api分组的id
+        domain_name: 要绑定的独立域名
+        DomainType: "INTERNET" | ""INTERNET" 指定是公网类型还是内网类型,
+                     可选值: "INTERNET": 公网类型; INTRANET:内网类型。当指定了内网类型后，该域名就不允许从内网请求过来
+        """
         client = aliapi.create_client(
             accesskey_ID,
             accesskey_secret,
@@ -109,7 +121,7 @@ class aliapi:
             # 如有需要，请打印 error
             UtilClient.assert_as_string(error.message)
 
-    # 绑定指定证书
+    #
     @staticmethod
     def set_domain_ssl(
         groupid: str,
@@ -118,6 +130,9 @@ class aliapi:
         certPath: str,  # .fullchain文件存储路径
         keyPath: str,  # .key文件存储路径
     ) -> None:
+        """
+        给指定api分组绑定指定证书
+        """
         client = aliapi.create_client(
             accesskey_ID,
             accesskey_secret,
@@ -152,8 +167,9 @@ class aliapi:
         certPath: str,  # .fullchain文件存储路径
         keyPath: str,  # .key文件存储路径
     ) -> None:
-        # 请确保代码运行环境设置了环境变量 ALIBABA_CLOUD_ACCESS_KEY_ID 和 ALIBABA_CLOUD_ACCESS_KEY_SECRET。
-        # 工程代码泄露可能会导致 AccessKey 泄露，并威胁账号下所有资源的安全性。
+        """
+        上传证书到数字证书服务上
+        """
         client = aliapi.create_client(
             accesskey_ID,
             accesskey_secret,
@@ -182,7 +198,7 @@ class aliapi:
     @staticmethod
     def get_sslmessage_list() -> None:
         # 请确保代码运行环境设置了环境变量 ALIBABA_CLOUD_ACCESS_KEY_ID 和 ALIBABA_CLOUD_ACCESS_KEY_SECRET。
-        # 工程代码泄露可能会导致 AccessKey 泄露，并威胁账号下所有资源的安全性。以下代码示例使用环境变量获取 AccessKey 的方式进行调用，仅供参考，建议使用更安全的 STS 方式，更多鉴权访问方式请参见：https://help.aliyun.com/document_detail/378659.html
+        # 工程代码泄露可能会导致 AccessKey 泄露，并威胁账号下所有资源的安全性。以下代码示例使用环境变量获取 AccessKey 的方式进行调用，仅供参考，建议使用更安全的 STS 方式，更多鉴权访问方式请参见": "https://help.aliyun.com/document_detail/378659.html
         client = aliapi.create_client(
             accesskey_ID,
             accesskey_secret,
@@ -226,7 +242,7 @@ class aliapi:
     @staticmethod
     def del_ssl(certId: int) -> None:
         # 请确保代码运行环境设置了环境变量 ALIBABA_CLOUD_ACCESS_KEY_ID 和 ALIBABA_CLOUD_ACCESS_KEY_SECRET。
-        # 工程代码泄露可能会导致 AccessKey 泄露，并威胁账号下所有资源的安全性。以下代码示例使用环境变量获取 AccessKey 的方式进行调用，仅供参考，建议使用更安全的 STS 方式，更多鉴权访问方式请参见：https://help.aliyun.com/document_detail/378659.html
+        # 工程代码泄露可能会导致 AccessKey 泄露，并威胁账号下所有资源的安全性。以下代码示例使用环境变量获取 AccessKey 的方式进行调用，仅供参考，建议使用更安全的 STS 方式，更多鉴权访问方式请参见": "https://help.aliyun.com/document_detail/378659.html
         client = aliapi.create_client(
             accesskey_ID,
             accesskey_secret,
