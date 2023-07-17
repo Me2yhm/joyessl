@@ -78,6 +78,7 @@ def update_fc_ssl(domainName: str, sslName: str):
 
 if __name__ == "__main__":
     restart_docker = os.path.join(os.path.dirname(__file__), "restart_docker.sh")
-    subprocess.run(["sh", "restart_docker.sh"])
-    ssl_from_docker(*sys.argv[1:])
+    subprocess.run(["sh", restart_docker])
+    ssl_from_docker(sys.argv[2])
     update_fc_ssl(*sys.argv[1:])
+    update_ssl(sys.argv[2])
