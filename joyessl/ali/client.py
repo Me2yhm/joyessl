@@ -33,5 +33,5 @@ class api_fc_client(clientType):
     # 这个端口和ali账户有关，所以实测之前要改这个端口
     endpoint = "1881088364765357.cn-hongkong.fc.aliyuncs.com"
 
-    def __new__(cls, config: open_api_models.Config):
+    def __new__(cls, config: open_api_models.Config) -> FC_Open20210406Client:
         return FC_Open20210406Client(config)
